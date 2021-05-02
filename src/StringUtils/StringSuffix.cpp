@@ -20,6 +20,7 @@ namespace gnl
 
     public:
         int ind, len;
+        
         StringSuffix (){}
         StringSuffix(int ind, std::shared_ptr <StringWithSuffixes<alphSz>> s)
         {
@@ -30,6 +31,11 @@ namespace gnl
         } 
         
     public:
+        int getStringId()
+        {
+            return s->id;
+        }
+
         Hash getHash(int l)
         {
             return s->getHash(ind, ind+l-1);

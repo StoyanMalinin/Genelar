@@ -30,11 +30,27 @@ namespace gnl
             StringSuffixTreapNode<alphSz> *x = new StringSuffixTreapNode<alphSz>();
             Treap <StringSuffixTreapNode<alphSz>> *T = new Treap <StringSuffixTreapNode<alphSz>>();
 
-            StringWithSuffixes<alphSz> *str = new StringWithSuffixes<alphSz>("pederast", alphMap);
-
+            StringWithSuffixes<alphSz> *str = new StringWithSuffixes<alphSz>(1, "alalabcdabc", alphMap);
             for(int i = 0;i<str->n;i++)
                 T->addElement(std::shared_ptr<StringSuffixTreapNode<alphSz>>(new StringSuffixTreapNode<alphSz>(str->suff[i])));
+            
+            str = new StringWithSuffixes<alphSz>(2, "alabalab", alphMap);
+            for(int i = 0;i<str->n;i++)
+                T->addElement(std::shared_ptr<StringSuffixTreapNode<alphSz>>(new StringSuffixTreapNode<alphSz>(str->suff[i])));
+
+            str = new StringWithSuffixes<alphSz>(3, "aaaaaa", alphMap);//6 * 'a'
+            for(int i = 0;i<str->n;i++)
+                T->addElement(std::shared_ptr<StringSuffixTreapNode<alphSz>>(new StringSuffixTreapNode<alphSz>(str->suff[i])));
+
             T->printTreap();
+            //T->dfs(T->root);
+
+            std::vector <int> ids;
+            (Treap <StringSuffixTreapNode<alphSz>>::toNodeType(T->root)).findMatches("a", ids);
+            
+            std::cout << "ids: ";
+            for(int id: ids) std::cout << " " << id;
+            std::cout << "\n";
         }
     };
 }

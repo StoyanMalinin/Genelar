@@ -47,7 +47,7 @@ namespace gnl
 
             for(int i = 0;i<n;i++)
             {
-                suff[i] = std::make_shared<StringSuffix<alphSz>>(*(new StringSuffix<alphSz>(i, std::make_shared<StringWithSuffixes<alphSz>>(*this))));
+                suff[i] = std::make_shared<StringSuffix<alphSz>>(i, std::shared_ptr<StringWithSuffixes<alphSz>>(this));
             }
         }
 
