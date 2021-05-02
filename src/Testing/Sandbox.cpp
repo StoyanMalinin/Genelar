@@ -1,7 +1,9 @@
 #include <iostream>
 #include <cstring>
 
+#include "..\TreapUtils\Treap.cpp"
 #include "..\StringUtils\StringWithSuffixes.cpp"
+#include "..\DictionaryUtils\StringSuffixTreapNode.cpp"
 
 namespace gnl
 {
@@ -21,16 +23,18 @@ namespace gnl
     public:
         void run()
         {
-            HashingData::init();
             initLowercase();
+            HashingData::init();
+            std::cout << "INSIDE SANDBOX" << '\n';
 
-            StringWithSuffixes<alphSz> *s = new StringWithSuffixes<alphSz>("alabala", alphMap);
-            std::cout << *s << '\n';
+            StringSuffixTreapNode<alphSz> *x = new StringSuffixTreapNode<alphSz>();
+            Treap <StringSuffixTreapNode<alphSz>> *T = new Treap <StringSuffixTreapNode<alphSz>>();
 
-            std::cout << s->getHash(0, 2).h[0] << " == " << s->getHash(4, 6).h[0] << '\n';
-            std::cout << (s->getHash(0, 1)==s->getHash(2, 3)) << '\n';
+            StringWithSuffixes<alphSz> *str = new StringWithSuffixes<alphSz>("pederast", alphMap);
 
-            std::cout << s->lcp(0, 4) << " " << s->lcp(1, 2) << " " << s->lcp(0, 2) << '\n';
+            for(int i = 0;i<str->n;i++)
+                T->addElement(std::shared_ptr<StringSuffixTreapNode<alphSz>>(new StringSuffixTreapNode<alphSz>(str->suff[i])));
+            T->printTreap();
         }
     };
 }

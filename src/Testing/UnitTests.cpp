@@ -1,3 +1,4 @@
+#include <set>
 #include <vector>
 #include <iostream>
 #include <assert.h>
@@ -21,9 +22,9 @@ namespace gnl
         }
 
     private:
-        std::vector<std::function<std::string()>> allTests;
+        std::vector<std::function<void()>> allTests;
 
-        static std::string test1()
+        static void test1()
         {
             StringWithSuffixes<alphSz> *s = new StringWithSuffixes<alphSz>("alabala", alphMap);
 
@@ -33,8 +34,40 @@ namespace gnl
             assert(s->lcp(0, 4)==3);
             assert(s->lcp(1, 2)==0);
             assert(s->lcp(0, 2)==1);
+            assert(s->lcp(0, 1)==0);
 
-            return "[Test 1] is OK";
+            std::cout << "Test 1 is OK" << '\n';
+        }
+
+        static void test2()
+        {
+            std::set <StringSuffix<alphSz>> s;
+
+            s.clear();
+            StringWithSuffixes<alphSz> *str = new StringWithSuffixes<alphSz>("abcd", alphMap);
+            for(int i = 0;i<str->n;i++)
+                s.insert(*(str->suff[i]));
+
+            auto it = s.begin();
+            assert(it->ind==0);it++;
+            assert(it->ind==1);it++;
+            assert(it->ind==2);it++;
+            assert(it->ind==3);it++;
+
+            s.clear();
+            str = new StringWithSuffixes<alphSz>("pedala", alphMap);
+            for(int i = 0;i<str->n;i++)
+                s.insert(*(str->suff[i]));
+
+            it = s.begin();
+            assert(it->ind==5);it++;
+            assert(it->ind==3);it++;
+            assert(it->ind==2);it++;
+            assert(it->ind==1);it++;
+            assert(it->ind==4);it++;
+            assert(it->ind==0);it++;
+
+            std::cout << "Test 2 is OK" << '\n';
         }
 
     public:
@@ -44,6 +77,7 @@ namespace gnl
             initLowercase();
 
             allTests.push_back(test1);
+            allTests.push_back(test2);
         }
 
     public:
@@ -51,7 +85,7 @@ namespace gnl
         {
             std::cout << "Starting tests" << '\n';
             for(auto &test: allTests)
-                std::cout << test() << '\n';
+                test();
             std::cout << "All tests completed" << '\n' << '\n';
         }
 
