@@ -16,15 +16,19 @@ namespace gnl
     class StringWithSuffixes
     {
     public:
-        int n;
+        int n, id;
         std::shared_ptr<std::string> s;
+        std::shared_ptr<StringSuffix<alphSz>> *suff;
 
     private:
         Hash *h;
         uint8_t *alphMap;
-        std::shared_ptr<StringSuffix<alphSz>> *suff;
 
     public:
+        StringWithSuffixes(int id, const std::string &s, uint8_t *alphMap) : StringWithSuffixes(s, alphMap)
+        {
+            this->id = id;
+        }
         StringWithSuffixes(const std::string &s, uint8_t *alphMap)
         {
             this->n = s.size();
@@ -48,7 +52,8 @@ namespace gnl
         }
 
     public:
-        friend std::ostream& operator <<(std::ostream &o, const StringWithSuffixes &s)
+        template <size_t currAlphSz>
+        friend std::ostream& operator <<(std::ostream &o, const StringWithSuffixes <currAlphSz> &s)
         {
             o << *s.s;
             return o;

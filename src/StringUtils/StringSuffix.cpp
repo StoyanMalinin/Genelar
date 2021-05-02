@@ -16,10 +16,10 @@ namespace gnl
     class StringSuffix 
     {
     private:
-        int ind, len;
         std::shared_ptr <StringWithSuffixes<alphSz>> s;
 
     public:
+        int ind, len;
         StringSuffix (){}
         StringSuffix(int ind, std::shared_ptr <StringWithSuffixes<alphSz>> s)
         {
@@ -35,8 +35,12 @@ namespace gnl
             return s->getHash(ind, ind+l-1);
         }
 
-        template <size_t currAlphSz>
-        static int lcp(std::shared_ptr<StringSuffix<currAlphSz>> a, std::shared_ptr <StringSuffix<currAlphSz>> b)
+        char getSymbol(int i) const
+        {
+            return (*(s->s))[ind+i];
+        }
+
+        static int lcp(std::shared_ptr <StringSuffix<alphSz>> a, std::shared_ptr <StringSuffix<alphSz>> b)
         {
             int cnt = 0;
             int l = 1, r = std::min(a->len, b->len), mid; 
@@ -52,6 +56,29 @@ namespace gnl
             if(a->getHash(r)==b->getHash(r)) return r;
             if(a->getHash(l)==b->getHash(l)) return l;
             return 0;
+        }
+
+        template <size_t currAlphSz>
+        friend bool operator <(const StringSuffix<currAlphSz> &A, const StringSuffix<currAlphSz> &B)
+        {
+            int lcpLen = StringSuffix<alphSz>::lcp(std::make_shared<StringSuffix<alphSz>>(A), std::make_shared<StringSuffix<alphSz>>(B));
+
+            if(lcpLen==B.len) return false;
+            if(lcpLen==A.len) return true;  
+
+            if((A.getSymbol(lcpLen) != B.getSymbol(lcpLen)))
+                return (A.getSymbol(lcpLen) < B.getSymbol(lcpLen));
+        
+            return A.s->id < B.s->id;
+        }
+
+        template <size_t currAlphSz>
+        friend std::ostream& operator <<(std::ostream& o, const StringSuffix <currAlphSz> &s)
+        {
+            for(int i = s.ind;i<s.s->n;i++)
+                o << (*(s.s->s))[i];
+
+            return o;
         }
     };
 }

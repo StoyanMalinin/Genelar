@@ -10,6 +10,6 @@ int main(int argc, char *argv[])
 	UnitTests *tests = new UnitTests();
 	tests->runAllTests();
 
-	//Sandbox *app = new Sandbox();
-	//app->run();
+	Sandbox *app = new Sandbox();
+	app->run();
 }
