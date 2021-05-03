@@ -1,1 +1,1 @@
-g++ -DEVAL -std=gnu++11 -O2 -pipe -s -o ..\output\main main.cpp && ..\output\main.exe
+g++ -DEVAL -std=gnu++17 -O2 -Wl,--stack,41943040 -pipe -s -o ..\output\main main.cpp && ..\output\main.exe

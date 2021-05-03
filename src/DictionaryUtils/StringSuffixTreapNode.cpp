@@ -1,5 +1,9 @@
+#ifndef STRINGSUFFIXTREAPNODE_CPP
+#define STRINGSUFFIXTREAPNODE_CPP
+
 #include <memory>
 #include <vector>
+#include <numeric>
 
 #include "..\TreapUtils\TreapNode.cpp"
 #include "..\StringUtils\StringSuffix.cpp"
@@ -7,21 +11,49 @@
 namespace gnl
 {
     template <size_t alphSz>
-    struct StringSuffixTreapNode : public TreapNode
+    class StringSuffixTreapNode : public TreapNode
     {
+    private:
+        StringSuffixTreapNode<alphSz> *counterpart;
+        StringSuffixTreapNode<alphSz> *leftmostCounterPart;
+
+    public:
         std::shared_ptr <StringSuffix<alphSz>> suff;
 
         StringSuffixTreapNode() : TreapNode() {}
-        StringSuffixTreapNode(std::shared_ptr<StringSuffix<alphSz>> suff) : StringSuffixTreapNode()
+        StringSuffixTreapNode(std::shared_ptr<StringSuffix<alphSz>> suff, 
+                              StringSuffixTreapNode<alphSz> *counterpart) : StringSuffixTreapNode()
         {
             this->suff = suff;
+            this->counterpart = counterpart;
+        }
+        
+        void externalRecalc()
+        {
+            int bestInd = ((counterpart==nullptr)?-1:counterpart->getInd());
+            leftmostCounterPart = counterpart;
+            
+            if(L!=nullptr)
+            {
+                int currInd = ((((StringSuffixTreapNode*)L)->leftmostCounterPart==nullptr)?-1:((StringSuffixTreapNode*)L)->leftmostCounterPart->getInd());
+                if(currInd<bestInd) 
+                {
+                    bestInd = currInd;
+                    leftmostCounterPart = ((StringSuffixTreapNode*)L)->leftmostCounterPart;
+                }
+            }
+            if(R!=nullptr)
+            {
+                int currInd = ((((StringSuffixTreapNode*)R)->leftmostCounterPart==nullptr)?-1:((StringSuffixTreapNode*)R)->leftmostCounterPart->getInd());
+
+                if(currInd<bestInd) 
+                {
+                    bestInd = currInd;
+                    leftmostCounterPart = ((StringSuffixTreapNode*)R)->leftmostCounterPart;
+                }
+            }
         }
 
-        void recalc()
-        {
-            TreapNode::recalc();
-        }               
-        
         template <size_t currAlphSz> 
         friend bool operator <(const StringSuffixTreapNode<currAlphSz> &A, const StringSuffixTreapNode<currAlphSz> &B)
         {
@@ -34,11 +66,24 @@ namespace gnl
             return o;
         }
 
-        void findMatches(const std::string &pattern, std::vector <int> &ids, bool lOk = false, bool rOk = false)
+        void findMatches(const std::string &pattern, std::vector <int> &ids)
         {
+            int leftMostInd = std::numeric_limits<int>::max();
+            findMatchesInternal(pattern, ids, leftMostInd);
+        }
+
+    private:
+        void findMatchesInternal(const std::string &pattern, std::vector <int> &ids, int &leftmostInd, bool lOk = false, bool rOk = false)
+        {
+            recalc();
+            pushLazy();
+            externalRecalc();
+
             bool currOk = false;
             int matchingLen = 0;
-            std::cout << "tarsq " << *suff << '\n';
+
+            int counterpartInd = ((leftmostCounterPart==nullptr)?-1:leftmostCounterPart->getInd());
+            if(counterpartInd>leftmostInd) return;
 
             if(lOk==true && rOk==true) currOk = true;
             else
@@ -49,20 +94,23 @@ namespace gnl
 
             if(currOk==true)
             {
+                if(L!=nullptr) ((StringSuffixTreapNode*)L)->findMatchesInternal(pattern, ids, leftmostInd,  lOk, currOk);
+                
                 ids.push_back(suff->getStringId());
-                std::cout << "otkrih go pri " << *suff << " " << suff->len << '\n';
+                if(leftmostInd==std::numeric_limits<int>::max()) leftmostInd = getInd();
 
-                if(L!=nullptr) Treap<StringSuffixTreapNode<alphSz>>::toNodeType(L).findMatches(pattern, ids, lOk, currOk);
-                if(R!=nullptr) Treap<StringSuffixTreapNode<alphSz>>::toNodeType(R).findMatches(pattern, ids, currOk, rOk);
+                if(R!=nullptr) ((StringSuffixTreapNode*)R)->findMatchesInternal(pattern, ids, leftmostInd, currOk, rOk);
             }
             else
             {
                 if(L!=nullptr && (matchingLen<suff->len && (matchingLen==pattern.size() || pattern[matchingLen]<suff->getSymbol(matchingLen))))
-                    Treap<StringSuffixTreapNode<alphSz>>::toNodeType(L).findMatches(pattern, ids, lOk, currOk);
+                    ((StringSuffixTreapNode*)L)->findMatchesInternal(pattern, ids, leftmostInd, lOk, currOk);
                     
                 if(R!=nullptr && (matchingLen==suff->len || (matchingLen!=pattern.size() && pattern[matchingLen]>suff->getSymbol(matchingLen)))) 
-                    Treap<StringSuffixTreapNode<alphSz>>::toNodeType(R).findMatches(pattern, ids, currOk, rOk);
+                    ((StringSuffixTreapNode*)R)->findMatchesInternal(pattern, ids, leftmostInd, currOk, rOk);
             }
         }
     };
 }
+
+#endif

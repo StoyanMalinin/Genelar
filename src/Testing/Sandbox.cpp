@@ -3,6 +3,7 @@
 
 #include "..\TreapUtils\Treap.cpp"
 #include "..\StringUtils\StringWithSuffixes.cpp"
+#include "..\DictionaryUtils\TreapDictionary.cpp"
 #include "..\DictionaryUtils\StringSuffixTreapNode.cpp"
 
 namespace gnl
@@ -27,30 +28,20 @@ namespace gnl
             HashingData::init();
             std::cout << "INSIDE SANDBOX" << '\n';
 
-            StringSuffixTreapNode<alphSz> *x = new StringSuffixTreapNode<alphSz>();
-            Treap <StringSuffixTreapNode<alphSz>> *T = new Treap <StringSuffixTreapNode<alphSz>>();
+            TreapDictionary<alphSz> *td = new TreapDictionary<alphSz>(alphMap);
 
-            StringWithSuffixes<alphSz> *str = new StringWithSuffixes<alphSz>(1, "alalabcdabc", alphMap);
-            for(int i = 0;i<str->n;i++)
-                T->addElement(std::shared_ptr<StringSuffixTreapNode<alphSz>>(new StringSuffixTreapNode<alphSz>(str->suff[i])));
-            
-            str = new StringWithSuffixes<alphSz>(2, "alabalab", alphMap);
-            for(int i = 0;i<str->n;i++)
-                T->addElement(std::shared_ptr<StringSuffixTreapNode<alphSz>>(new StringSuffixTreapNode<alphSz>(str->suff[i])));
-
-            str = new StringWithSuffixes<alphSz>(3, "aaaaaa", alphMap);//6 * 'a'
-            for(int i = 0;i<str->n;i++)
-                T->addElement(std::shared_ptr<StringSuffixTreapNode<alphSz>>(new StringSuffixTreapNode<alphSz>(str->suff[i])));
-
-            T->printTreap();
-            //T->dfs(T->root);
+            td->addString(1, "alabala");
+            td->addString(2, "abababababababababababababababababababababababababababababababab");
+            td->addString(3, "abcabcabz");
 
             std::vector <int> ids;
-            (Treap <StringSuffixTreapNode<alphSz>>::toNodeType(T->root)).findMatches("a", ids);
-            
+            td->queryString("ab", ids);
+
             std::cout << "ids: ";
             for(int id: ids) std::cout << " " << id;
             std::cout << "\n";
+
+            std::cout << "END OF SANDBOX" << '\n';
         }
     };
 }

@@ -13,8 +13,8 @@ namespace gnl
         int len;
         int priority;
         
-        std::shared_ptr<TreapNode> L, R;
-        std::shared_ptr<TreapNode> parent;
+        TreapNode *L, *R;
+        TreapNode *parent;
         
         TreapNode()
         {
@@ -32,13 +32,23 @@ namespace gnl
             if(L!=nullptr) 
             {
                 len += L->len;
-                L->parent = std::shared_ptr<TreapNode>(this);
+                L->parent = this;
             }
             if(R!=nullptr) 
             {
                 len += R->len;
-                R->parent = std::shared_ptr<TreapNode>(this);
+                R->parent = this;
             }
+        }
+ 
+        virtual void pushLazy()
+        {
+
+        }
+
+        virtual void externalRecalc()
+        {
+            
         }
 
         int getInd(bool toAdd = true)

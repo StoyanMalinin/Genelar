@@ -1,3 +1,6 @@
+#ifndef TREAP_CPP 
+#define TREAP_CPP
+
 #include <memory>
 
 #include "TreapNode.cpp"
@@ -8,53 +11,56 @@ namespace gnl
     class Treap
     {
     public:
-        std::shared_ptr <TreapNode> root;
+        NodeType* root;
 
-        static NodeType toNodeType(std::shared_ptr<TreapNode> x)
-        {
-            return (*((NodeType*)(&(*x))));
-        }
-
-        static std::shared_ptr<TreapNode> Merge(std::shared_ptr<TreapNode> small, std::shared_ptr<TreapNode> big)
+        static NodeType* Merge(NodeType *small, NodeType *big)
         {
             if(small==nullptr) return big;
             if(big==nullptr) return small;
 
             big->recalc();
+            big->externalRecalc();
+
             small->recalc();
+            small->externalRecalc();
             
             if(small->priority > big->priority)
             {
-                small->R = Merge(small->R, big);
+                small->R = Merge((NodeType*)(small->R), big);
+                small->externalRecalc();
                 small->recalc();
 
                 return small;
             }
             else
             {
-                big->L = Merge(small, big->L);
+                big->L = Merge(small, (NodeType*)(big->L));
+                big->externalRecalc();
                 big->recalc();
 
                 return big;
             }
         }
 
-        static std::pair <std::shared_ptr<TreapNode>, std::shared_ptr<TreapNode>> Split(std::shared_ptr <TreapNode> T, NodeType x)
+        static std::pair <NodeType*, NodeType*> Split(NodeType* T, NodeType x)
         {
             if(T==nullptr) return {nullptr, nullptr};
+            T->externalRecalc();
             T->recalc();
 
-            if(toNodeType(T) < x)
+            if(*T < x)
             {
-                auto splitRes = Split(T->R, x);
+                auto splitRes = Split((NodeType*)(T->R), x);
 
                 T->R = splitRes.first;
                 T->parent = nullptr;
+                T->externalRecalc();
                 T->recalc();
 
                 if(splitRes.second!=nullptr) 
                 {
                     splitRes.second->parent = nullptr;
+                    splitRes.second->externalRecalc();
                     splitRes.second->recalc();
                 }
 
@@ -62,7 +68,7 @@ namespace gnl
             }
             else
             {
-                auto splitRes = Split(T->L, x);
+                auto splitRes = Split((NodeType*)(T->L), x);
 
                 T->L = splitRes.second;
                 T->parent = nullptr;
@@ -78,12 +84,13 @@ namespace gnl
             }
         }
 
-        void printTreapInternal(std::shared_ptr<TreapNode> x)
+        void printTreapInternal(TreapNode *x)
         {
             x->recalc();
+            x->externalRecalc();
 
             if(x->L!=nullptr) printTreapInternal(x->L);
-            std::cout << "{" << (*((NodeType*)(&(*x)))) << ", " << x->getInd() << "}" << " ";
+            std::cout << "{" << *((NodeType*)x) << ", " << x->getInd() << "|" << (*((NodeType*)(&(*x)))).suff->getStringId() << "}" << " ";
             if(x->R!=nullptr) printTreapInternal(x->R);
         }
 
@@ -94,19 +101,19 @@ namespace gnl
             std::cout << '\n';
         }
 
-        void dfs(std::shared_ptr<TreapNode> x, int depth = 0)
+        void dfs(NodeType *x, int depth = 0)
         {
             int ind = x->getInd();
 
             for(int i = 0;i<depth;i++) std::cout << " ";
-            std::cout << "at " << toNodeType(x) << " -> " << "ind: " << ind << " | " << "len: " << x->len
+            std::cout << "at " << ((NodeType*)x) << " -> " << "ind: " << ind << " | " << "len: " << x->len
                       << " " << "priority: " << x->priority << '\n';
 
             if(x->L!=nullptr) dfs(x->L, depth+1);
             if(x->R!=nullptr) dfs(x->R, depth+1);
         }
         
-        void addElement(std::shared_ptr<NodeType> x)
+        void addElement(NodeType *x)
         {
             auto help = Split(root, *x);
 
@@ -115,3 +122,5 @@ namespace gnl
         }
     };
 }
+
+#endif

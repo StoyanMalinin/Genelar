@@ -69,8 +69,8 @@ namespace gnl
         {
             int lcpLen = StringSuffix<alphSz>::lcp(std::make_shared<StringSuffix<alphSz>>(A), std::make_shared<StringSuffix<alphSz>>(B));
 
-            if(lcpLen==B.len) return false;
-            if(lcpLen==A.len) return true;  
+            if(lcpLen==B.len && lcpLen!=A.len) return false;
+            if(lcpLen==A.len && lcpLen!=B.len) return true;  
 
             if((A.getSymbol(lcpLen) != B.getSymbol(lcpLen)))
                 return (A.getSymbol(lcpLen) < B.getSymbol(lcpLen));
