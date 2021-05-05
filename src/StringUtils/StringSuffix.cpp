@@ -36,7 +36,7 @@ namespace gnl
             return s->id;
         }
 
-        Hash getHash(int l)
+        Hash getHash(int l) const
         {
             return s->getHash(ind, ind+l-1);
         }
@@ -48,26 +48,56 @@ namespace gnl
 
         static int lcp(std::shared_ptr <StringSuffix<alphSz>> a, std::shared_ptr <StringSuffix<alphSz>> b)
         {
-            int cnt = 0;
+            if(a->getSymbol(0)!=b->getSymbol(0))
+                return 0;
+
+            int res = 0;
             int l = 1, r = std::min(a->len, b->len), mid; 
         
-            while(l+1<r)
+            while(l<=r)
             {
                 mid = (l+r)/2;
 
-                if(a->getHash(mid)==b->getHash(mid)) l = mid;
-                else r = mid - 1;
+                if(a->getHash(mid)==b->getHash(mid)) 
+                {
+                    res = mid;
+                    l = mid + 1;
+                }
+                else 
+                    r = mid - 1;
             }
 
-            if(a->getHash(r)==b->getHash(r)) return r;
-            if(a->getHash(l)==b->getHash(l)) return l;
-            return 0;
+            return res;
+        }
+
+        static int lcp(const StringSuffix<alphSz> &a, const StringSuffix<alphSz> &b)
+        {
+            if(a.getSymbol(0)!=b.getSymbol(0))
+                return 0;
+
+            int res = 0;
+            int l = 1, r = std::min(a.len, b.len), mid; 
+        
+            while(l<=r)
+            {
+                mid = (l+r)/2;
+
+                if(a.getHash(mid)==b.getHash(mid)) 
+                {
+                    res = mid;
+                    l = mid + 1;
+                }
+                else 
+                    r = mid - 1;
+            }
+
+            return res;
         }
 
         template <size_t currAlphSz>
         friend bool operator <(const StringSuffix<currAlphSz> &A, const StringSuffix<currAlphSz> &B)
         {
-            int lcpLen = StringSuffix<alphSz>::lcp(std::make_shared<StringSuffix<alphSz>>(A), std::make_shared<StringSuffix<alphSz>>(B));
+            int lcpLen = StringSuffix<alphSz>::lcp(A, B);
 
             if(lcpLen==B.len && lcpLen!=A.len) return false;
             if(lcpLen==A.len && lcpLen!=B.len) return true;  

@@ -32,18 +32,23 @@ namespace gnl
             if(L!=nullptr) 
             {
                 len += L->len;
-                L->parent = this;
             }
-            if(R!=nullptr) 
+            if(R!=nullptr)
             {
                 len += R->len;
-                R->parent = this;
             }
         }
  
         virtual void pushLazy()
         {
-
+            if(L!=nullptr) 
+            {
+                L->parent = this;
+            }
+            if(R!=nullptr) 
+            {
+                R->parent = this;
+            }
         }
 
         virtual void externalRecalc()
@@ -51,15 +56,21 @@ namespace gnl
             
         }
 
-        int getInd(bool toAdd = true)
+        inline int getInd(bool toAdd = true)
         {
             recalc();
-
-            int before = 0;
-            if(toAdd==true) before += 1 + ((L==nullptr)?0:L->len);
-
-            if(parent==nullptr) return before - 1;
-            return before + parent->getInd((parent->R!=nullptr && parent->R->priority==priority));//((parent->R==nullptr)?-69:parent->R->priority)==this->priority); 
+            pushLazy();
+    
+            if(toAdd==true)
+            {
+                if(parent==nullptr) return ((L==nullptr)?0:L->len);
+                return 1 + ((L==nullptr)?0:L->len) + parent->getInd((parent->R==this));
+            }
+            else
+            {
+                if(parent==nullptr) return -1;
+                return parent->getInd((parent->R==this));
+            }
         }
     };
     std::mt19937 TreapNode::rnd = std::mt19937(22); 

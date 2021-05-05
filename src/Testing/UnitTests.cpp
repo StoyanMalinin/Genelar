@@ -1,10 +1,14 @@
 #include <set>
+#include <thread>
+#include <chrono>
 #include <vector>
 #include <iostream>
 #include <assert.h>
+#include <algorithm>
 #include <functional>
 
 #include "..\StringUtils\StringWithSuffixes.cpp"
+#include "..\DictionaryUtils\TreapDictionary.cpp"
 
 namespace gnl
 {
@@ -70,6 +74,90 @@ namespace gnl
             std::cout << "Test 2 is OK" << '\n';
         }
 
+        static void test3()
+        {
+            std::chrono::high_resolution_clock clock;
+            auto startTime = clock.now();
+
+            std::vector <int> ids;
+            TreapDictionary<alphSz> *td = new TreapDictionary<alphSz>(alphMap);
+
+            td->addString(1, "alabala");
+            td->addString(2, "abababababababababababababababababababababababababababababababab");
+            td->addString(3, "abcabcabz");
+
+            td->queryString("ab", ids, true);
+            assert((ids==std::vector<int>{1, 2, 3}));
+            
+            td->queryString("a", ids, true);
+            assert((ids==std::vector<int>{1, 2, 3}));
+
+            td->queryString("z", ids, true);
+            assert((ids==std::vector<int>{3}));
+
+            td->queryString("x", ids, true);
+            assert((ids==std::vector<int>{}));
+
+            td->addString(4, "xyz");
+
+            td->queryString("z", ids, true);
+            assert((ids==std::vector<int>{3, 4}));
+
+            td->queryString("x", ids, true);
+            assert((ids==std::vector<int>{4}));
+
+            td->queryString("a", ids, true);
+            assert((ids==std::vector<int>{1, 2, 3}));
+            
+            td->addString(5, "al");
+
+            td->queryString("al", ids, true);
+            assert((ids==std::vector<int>{1, 5}));
+
+            td->queryString("ala", ids, true);
+            assert((ids==std::vector<int>{1}));
+
+            auto endTime = clock.now();
+            std::cout << "Test 3 is OK" << " " << (std::chrono::duration<float>(endTime-startTime)).count() << "s" << '\n';
+        }
+
+        static void test4()
+        {
+            std::mt19937 rnd(22);
+
+            std::chrono::high_resolution_clock clock;
+            auto startTime = clock.now();
+
+            std::vector <int> ids;
+            TreapDictionary<alphSz> *td = new TreapDictionary<alphSz>(alphMap);
+
+            int idSum = 0, idCnt = 0;
+            for(int iter = 0;iter<10*1000;iter++)
+            {
+                if(iter%1000==0)
+                    std::cout << iter << '\n';
+
+                std::string s = "";
+                if(iter%5==0) 
+                {
+                    for(int i = 0;i<400;i++) s += char('a' + (rnd()%26));
+                    td->addString((iter+1)/2+1, s);
+                }
+                else
+                {
+                    for(int i = 0;i<2;i++) s += char('a' + (rnd()%26));
+                    td->queryString(s, ids, true);
+                
+                    idCnt++;
+                    idSum += ids.size();
+                }
+            }
+
+            auto endTime = clock.now();
+            std::cout << "Test 4 passed (it has no checking)" << " " << (std::chrono::duration<float>(endTime-startTime)).count() << "s"
+                      << " || " << (double)idSum / (double)idCnt <<  '\n';
+        }
+
     public:
         UnitTests()
         {
@@ -78,6 +166,8 @@ namespace gnl
 
             allTests.push_back(test1);
             allTests.push_back(test2);
+            allTests.push_back(test3);
+            allTests.push_back(test4);
         }
 
     public:

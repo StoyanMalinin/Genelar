@@ -15,12 +15,16 @@ namespace gnl
     {
     private:
         StringSuffixTreapNode<alphSz> *counterpart;
-        StringSuffixTreapNode<alphSz> *leftmostCounterPart;
 
     public:
+        StringSuffixTreapNode<alphSz> *leftmostCounterPart;
         std::shared_ptr <StringSuffix<alphSz>> suff;
 
-        StringSuffixTreapNode() : TreapNode() {}
+        StringSuffixTreapNode() : TreapNode() 
+        {
+            this->counterpart = nullptr;
+            this->leftmostCounterPart = nullptr;            
+        }
         StringSuffixTreapNode(std::shared_ptr<StringSuffix<alphSz>> suff, 
                               StringSuffixTreapNode<alphSz> *counterpart) : StringSuffixTreapNode()
         {
@@ -30,26 +34,23 @@ namespace gnl
         
         void externalRecalc()
         {
-            int bestInd = ((counterpart==nullptr)?-1:counterpart->getInd());
             leftmostCounterPart = counterpart;
             
-            if(L!=nullptr)
+            if(L!=nullptr && leftmostCounterPart!=nullptr)
             {
-                int currInd = ((((StringSuffixTreapNode*)L)->leftmostCounterPart==nullptr)?-1:((StringSuffixTreapNode*)L)->leftmostCounterPart->getInd());
-                if(currInd<bestInd) 
+                StringSuffixTreapNode *other = ((StringSuffixTreapNode*)L)->leftmostCounterPart;
+                if(other==nullptr || other->suff < leftmostCounterPart->suff) 
                 {
-                    bestInd = currInd;
-                    leftmostCounterPart = ((StringSuffixTreapNode*)L)->leftmostCounterPart;
+                    leftmostCounterPart = other;
                 }
             }
-            if(R!=nullptr)
+            
+            if(R!=nullptr && leftmostCounterPart!=nullptr)
             {
-                int currInd = ((((StringSuffixTreapNode*)R)->leftmostCounterPart==nullptr)?-1:((StringSuffixTreapNode*)R)->leftmostCounterPart->getInd());
-
-                if(currInd<bestInd) 
+                StringSuffixTreapNode *other = ((StringSuffixTreapNode*)R)->leftmostCounterPart;
+                if(other==nullptr || other->suff < leftmostCounterPart->suff) 
                 {
-                    bestInd = currInd;
-                    leftmostCounterPart = ((StringSuffixTreapNode*)R)->leftmostCounterPart;
+                    leftmostCounterPart = other;
                 }
             }
         }

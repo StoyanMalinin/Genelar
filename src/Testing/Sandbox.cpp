@@ -31,9 +31,10 @@ namespace gnl
             TreapDictionary<alphSz> *td = new TreapDictionary<alphSz>(alphMap);
 
             td->addString(1, "alabala");
-            td->addString(2, "abababababababababababababababababababababababababababababababab");
+            //td->addString(2, "abababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab");
             td->addString(3, "abcabcabz");
-
+            td->T->printTreap();
+            
             std::vector <int> ids;
             td->queryString("ab", ids);
 
