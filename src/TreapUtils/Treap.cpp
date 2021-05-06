@@ -19,11 +19,13 @@ namespace gnl
             {
                 small->recalc();
                 small->pushLazy();
+                //small->externalRecalc();
             }
             if(big!=nullptr)
             {
                 big->recalc();
                 big->pushLazy();
+                //big->externalRecalc();
             }
 
             if(small==nullptr) return big;
@@ -57,6 +59,7 @@ namespace gnl
             
             T->recalc();
             T->pushLazy();
+            //T->externalRecalc();
 
             if(*T < x)
             {
@@ -75,6 +78,7 @@ namespace gnl
                  
                     splitRes.second->recalc();
                     splitRes.second->pushLazy();
+                    //splitRes.second->externalRecalc();
                 }
 
                 return {T, splitRes.second};
@@ -96,6 +100,7 @@ namespace gnl
 
                     splitRes.first->recalc();
                     splitRes.first->pushLazy();
+                    //splitRes.first->externalRecalc();
                 }
 
                 return {splitRes.first, T};
@@ -126,11 +131,12 @@ namespace gnl
             int ind = x->getInd();
 
             for(int i = 0;i<depth;i++) std::cout << " ";
-            std::cout << "at " << ((NodeType*)x) << " -> " << "ind: " << ind << " | " << "len: " << x->len
-                      << " " << "priority: " << x->priority << '\n';
+            std::cout << "at " << *(x->suff) << " -> " << "ind: " << ind << " | " << "len: " << x->len
+                      << " " << "priority: " << x->priority
+                      << " || " << "counterPartInd: " << ((x->leftmostCounterPart==nullptr)?-1:(x->leftmostCounterPart->getInd()))  <<  '\n';
 
-            if(x->L!=nullptr) dfs(x->L, depth+1);
-            if(x->R!=nullptr) dfs(x->R, depth+1);
+            if(x->L!=nullptr) dfs((NodeType*)(x->L), depth+1);
+            if(x->R!=nullptr) dfs((NodeType*)(x->R), depth+1);
         }
         
         void addElement(NodeType *x)

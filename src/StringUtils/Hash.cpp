@@ -37,7 +37,7 @@ namespace gnl
             for(int i = 0;i<HashingData::hCnt;i++)
             {
                 big.h[i] = (big.h[i] - small.h[i]*1LL*HashingData::pVal[big.len-small.len][i] 
-                            + HashingData::mod[i]*HashingData::mod[i])%HashingData::mod[i];
+                            + HashingData::mod2[i])%HashingData::mod[i];
             }
             big.len -= small.len;
 

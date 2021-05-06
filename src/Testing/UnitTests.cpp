@@ -8,6 +8,7 @@
 #include <functional>
 
 #include "..\StringUtils\StringWithSuffixes.cpp"
+#include "..\DictionaryUtils\KMPDictionary.cpp"
 #include "..\DictionaryUtils\TreapDictionary.cpp"
 
 namespace gnl
@@ -80,7 +81,7 @@ namespace gnl
             auto startTime = clock.now();
 
             std::vector <int> ids;
-            TreapDictionary<alphSz> *td = new TreapDictionary<alphSz>(alphMap);
+            KMPDictionary *td = new KMPDictionary();
 
             td->addString(1, "alabala");
             td->addString(2, "abababababababababababababababababababababababababababababababab");
@@ -128,34 +129,65 @@ namespace gnl
             std::chrono::high_resolution_clock clock;
             auto startTime = clock.now();
 
-            std::vector <int> ids;
-            TreapDictionary<alphSz> *td = new TreapDictionary<alphSz>(alphMap);
+            std::vector <int> ids1, ids2;
+            KMPDictionary *d1 = new KMPDictionary();
+            TreapDictionary<alphSz> *d2 = new TreapDictionary<alphSz>(alphMap);
 
+            int id = 1;
             int idSum = 0, idCnt = 0;
+
             for(int iter = 0;iter<10*1000;iter++)
             {
                 if(iter%1000==0)
                     std::cout << iter << '\n';
 
                 std::string s = "";
-                if(iter%5==0) 
+                if(iter%10==0) 
                 {
                     for(int i = 0;i<400;i++) s += char('a' + (rnd()%26));
-                    td->addString((iter+1)/2+1, s);
+                    
+                    d1->addString(id, s);
+                    d2->addString(id, s);
+
+                    id++;
                 }
                 else
                 {
                     for(int i = 0;i<2;i++) s += char('a' + (rnd()%26));
-                    td->queryString(s, ids, true);
+                    
+                    d1->queryString(s, ids1, true);
+                    d2->queryString(s, ids2, true);
                 
                     idCnt++;
-                    idSum += ids.size();
+                    idSum += ids2.size();
+                    
+                    /*
+                    if(ids1!=ids2) 
+                    {
+                        for(std::pair <int, std::string> &item: d1->all)
+                            std::cout << item.first << " " << item.second << '\n';
+
+                        std::cout << "schlecht" << '\n';
+                        std::cout << s << '\n';
+
+                        d2->T->dfs(d2->T->root);
+                        for(int id: ids2) std::cout << id << " ";
+                        std::cout << '\n';
+                        for(int id: ids1) std::cout << id << " ";
+                        std::cout << '\n';
+
+                        break;
+                    }
+                    */
+                    assert(ids1==ids2);
+                        
+                        //std::cout << ids1.size() << " vs " << ids2.size() << '\n';
                 }
             }
 
             auto endTime = clock.now();
-            std::cout << "Test 4 passed (it has no checking)" << " " << (std::chrono::duration<float>(endTime-startTime)).count() << "s"
-                      << " || " << (double)idSum / (double)idCnt <<  '\n';
+            std::cout << "Test 4 is ok" << " " << (std::chrono::duration<float>(endTime-startTime)).count() << "s" << '\n';
+                      //<< " || " << (double)idSum / (double)idCnt << " || " << StringSuffix<alphSz>::opCnt << " || " << StringSuffixTreapNode<alphSz>::opCnt <<  '\n';
         }
 
     public:

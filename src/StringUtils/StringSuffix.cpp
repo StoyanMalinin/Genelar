@@ -46,6 +46,8 @@ namespace gnl
             return (*(s->s))[ind+i];
         }
 
+        static int opCnt;
+
         static int lcp(std::shared_ptr <StringSuffix<alphSz>> a, std::shared_ptr <StringSuffix<alphSz>> b)
         {
             if(a->getSymbol(0)!=b->getSymbol(0))
@@ -57,6 +59,7 @@ namespace gnl
             while(l<=r)
             {
                 mid = (l+r)/2;
+                opCnt++;
 
                 if(a->getHash(mid)==b->getHash(mid)) 
                 {
@@ -81,6 +84,7 @@ namespace gnl
             while(l<=r)
             {
                 mid = (l+r)/2;
+                opCnt++;
 
                 if(a.getHash(mid)==b.getHash(mid)) 
                 {
@@ -109,6 +113,20 @@ namespace gnl
         }
 
         template <size_t currAlphSz>
+        friend bool operator <(std::shared_ptr <StringSuffix<currAlphSz>> A, std::shared_ptr <StringSuffix<currAlphSz>> B)
+        {
+            int lcpLen = StringSuffix<alphSz>::lcp(A, B);
+
+            if(lcpLen==B->len && lcpLen!=A->len) return false;
+            if(lcpLen==A->len && lcpLen!=B->len) return true;  
+
+            if((A->getSymbol(lcpLen) != B->getSymbol(lcpLen)))
+                return (A->getSymbol(lcpLen) < B->getSymbol(lcpLen));
+        
+            return A->s->id < B->s->id;
+        }
+
+        template <size_t currAlphSz>
         friend std::ostream& operator <<(std::ostream& o, const StringSuffix <currAlphSz> &s)
         {
             for(int i = s.ind;i<s.s->n;i++)
@@ -117,6 +135,8 @@ namespace gnl
             return o;
         }
     };
+    template <size_t alphSz> 
+    int StringSuffix<alphSz>::opCnt = 0;
 }
 
 #endif

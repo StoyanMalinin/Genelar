@@ -32,14 +32,14 @@ namespace gnl
             this->counterpart = counterpart;
         }
         
-        void externalRecalc()
+        void externalRecalc() override
         {
             leftmostCounterPart = counterpart;
             
             if(L!=nullptr && leftmostCounterPart!=nullptr)
             {
                 StringSuffixTreapNode *other = ((StringSuffixTreapNode*)L)->leftmostCounterPart;
-                if(other==nullptr || other->suff < leftmostCounterPart->suff) 
+                if(other==nullptr || *other < *leftmostCounterPart) 
                 {
                     leftmostCounterPart = other;
                 }
@@ -48,7 +48,8 @@ namespace gnl
             if(R!=nullptr && leftmostCounterPart!=nullptr)
             {
                 StringSuffixTreapNode *other = ((StringSuffixTreapNode*)R)->leftmostCounterPart;
-                if(other==nullptr || other->suff < leftmostCounterPart->suff) 
+
+                if(other==nullptr || *other < *leftmostCounterPart) 
                 {
                     leftmostCounterPart = other;
                 }
@@ -58,7 +59,7 @@ namespace gnl
         template <size_t currAlphSz> 
         friend bool operator <(const StringSuffixTreapNode<currAlphSz> &A, const StringSuffixTreapNode<currAlphSz> &B)
         {
-            return *(A.suff) < *(B.suff);
+            return A.suff < B.suff;
         }
 
         friend std::ostream& operator <<(std::ostream& o, const StringSuffixTreapNode &s)
@@ -67,6 +68,7 @@ namespace gnl
             return o;
         }
 
+        static int opCnt;
         void findMatches(const std::string &pattern, std::vector <int> &ids)
         {
             int leftMostInd = std::numeric_limits<int>::max();
@@ -78,18 +80,25 @@ namespace gnl
         {
             recalc();
             pushLazy();
-            externalRecalc();
+            //externalRecalc();
 
             bool currOk = false;
             int matchingLen = 0;
 
-            int counterpartInd = ((leftmostCounterPart==nullptr)?-1:leftmostCounterPart->getInd());
-            if(counterpartInd>leftmostInd) return;
+            if(leftmostInd!=std::numeric_limits<int>::max())
+            {
+                int counterpartInd = ((leftmostCounterPart==nullptr)?-1:leftmostCounterPart->getInd());
+                if(counterpartInd>leftmostInd) 
+                {
+                    return;
+                }
+            }
 
             if(lOk==true && rOk==true) currOk = true;
             else
             {
-                while(matchingLen<pattern.size() && matchingLen<suff->len && pattern[matchingLen]==suff->getSymbol(matchingLen)) matchingLen++;
+                opCnt++;
+                while(matchingLen<pattern.size() && matchingLen<suff->len && pattern[matchingLen]==suff->getSymbol(matchingLen)) matchingLen++, opCnt++;
                 if(matchingLen==pattern.size()) currOk = true;
             }
 
@@ -98,8 +107,11 @@ namespace gnl
                 if(L!=nullptr) ((StringSuffixTreapNode*)L)->findMatchesInternal(pattern, ids, leftmostInd,  lOk, currOk);
                 
                 ids.push_back(suff->getStringId());
-                if(leftmostInd==std::numeric_limits<int>::max()) leftmostInd = getInd();
-
+                if(leftmostInd==std::numeric_limits<int>::max()) 
+                {
+                    leftmostInd = getInd();
+                }
+                
                 if(R!=nullptr) ((StringSuffixTreapNode*)R)->findMatchesInternal(pattern, ids, leftmostInd, currOk, rOk);
             }
             else
@@ -112,6 +124,8 @@ namespace gnl
             }
         }
     };
+    template <size_t alphSz>
+    int StringSuffixTreapNode<alphSz>::opCnt = 0;
 }
 
 #endif
