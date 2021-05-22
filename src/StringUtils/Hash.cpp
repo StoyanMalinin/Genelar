@@ -32,18 +32,24 @@ namespace gnl
             }
         }
 
-        static Hash removePref(Hash big, const Hash &small)
+        static long long opCnt;
+        static Hash removePref(const Hash& big, const Hash &small)
         {
+            //opCnt++;
+            Hash res(big.alphMap);
+
             for(int i = 0;i<HashingData::hCnt;i++)
             {
-                big.h[i] = (big.h[i] - small.h[i]*1LL*HashingData::pVal[big.len-small.len][i] 
+                res.h[i] = (big.h[i] - small.h[i]*1LL*HashingData::pVal[big.len-small.len][i] 
                             + HashingData::mod2[i])%HashingData::mod[i];
             }
-            big.len -= small.len;
+            res.len = big.len - small.len;
 
-            return big;
+            return res;
         }
     };
+    long long Hash::opCnt = 0;
+
 
     Hash operator +(Hash A, const Hash &B)
     {
@@ -58,6 +64,8 @@ namespace gnl
 
     bool operator ==(const Hash &A, const Hash &B)
     {
+        //Hash::opCnt++;
+
         if(A.len!=B.len) return false;
         for(int i = 0;i<HashingData::hCnt;i++)
         {

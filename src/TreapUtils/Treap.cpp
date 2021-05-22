@@ -2,6 +2,7 @@
 #define TREAP_CPP
 
 #include <memory>
+#include <vector>
 
 #include "TreapNode.cpp"
 
@@ -145,6 +146,25 @@ namespace gnl
 
             root = Merge(help.first, x);
             root = Merge(root, help.second);
+        }
+
+        void addElements(const std::vector <NodeType*> &elements)
+        {
+            NodeType *last = root;
+
+            NodeType *merged = nullptr;
+            for(NodeType *x: elements)
+            {
+                auto help = Split(last, *x);
+
+                merged = Merge(merged, help.first);
+                merged = Merge(merged, x);
+                
+                last = help.second;
+            }
+            merged = Merge(merged, last);
+
+            root = merged;
         }
     };
 }

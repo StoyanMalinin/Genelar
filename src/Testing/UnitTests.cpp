@@ -130,21 +130,22 @@ namespace gnl
             auto startTime = clock.now();
 
             std::vector <int> ids1, ids2;
+            
             KMPDictionary *d1 = new KMPDictionary();
             TreapDictionary<alphSz> *d2 = new TreapDictionary<alphSz>(alphMap);
 
             int id = 1;
             int idSum = 0, idCnt = 0;
 
-            for(int iter = 0;iter<10*1000;iter++)
+            for(int iter = 0;iter<5*1000;iter++)
             {
                 if(iter%1000==0)
-                    std::cout << iter << '\n';
+                    std::cout << iter << " OK" << '\n';
 
                 std::string s = "";
                 if(iter%10==0) 
                 {
-                    for(int i = 0;i<400;i++) s += char('a' + (rnd()%26));
+                    for(int i = 0;i<600;i++) s += char('a' + (rnd()%26));
                     
                     d1->addString(id, s);
                     d2->addString(id, s);
@@ -179,15 +180,48 @@ namespace gnl
                         break;
                     }
                     */
+
                     assert(ids1==ids2);
-                        
-                        //std::cout << ids1.size() << " vs " << ids2.size() << '\n';
                 }
             }
 
             auto endTime = clock.now();
             std::cout << "Test 4 is ok" << " " << (std::chrono::duration<float>(endTime-startTime)).count() << "s" << '\n';
-                      //<< " || " << (double)idSum / (double)idCnt << " || " << StringSuffix<alphSz>::opCnt << " || " << StringSuffixTreapNode<alphSz>::opCnt <<  '\n';
+        }
+
+        static void test5()
+        {
+            std::mt19937 rnd(22);
+
+            std::chrono::high_resolution_clock clock;
+            auto startTime = clock.now();
+
+            std::vector <int> ids;
+            TreapDictionary<alphSz> *d = new TreapDictionary<alphSz>(alphMap);
+
+            int id = 1;
+            for(int iter = 0;iter<5*1000;iter++)
+            {
+                if(iter%1000==0)
+                    std::cout << iter << " OK" << '\n';
+
+                std::string s = "";
+                if(iter%10==0) 
+                {
+                    for(int i = 0;i<600;i++) s += char('a' + (rnd()%26));
+                    d->addString(id, s);
+
+                    id++;
+                }
+                else
+                {
+                    for(int i = 0;i<2;i++) s += char('a' + (rnd()%26));
+                    d->queryString(s, ids, true);
+                }
+            }
+
+            auto endTime = clock.now();
+            std::cout << "Test 5 is ok (just a performance test)" << " " << (std::chrono::duration<float>(endTime-startTime)).count() << "s" << '\n';
         }
 
     public:
@@ -200,6 +234,7 @@ namespace gnl
             allTests.push_back(test2);
             allTests.push_back(test3);
             allTests.push_back(test4);
+            allTests.push_back(test5);
         }
 
     public:

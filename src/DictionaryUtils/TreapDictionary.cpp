@@ -41,13 +41,17 @@ namespace gnl
             });
 
             StringSuffixTreapNode<alphSz> *last = nullptr;
+            std::vector <StringSuffixTreapNode<alphSz>*> toAdd;
+
             for(int i = 0;i<suffs.size();i++)
             {
                 StringSuffixTreapNode<alphSz> *curr = new StringSuffixTreapNode<alphSz>(suffs[i], last);
-                T->addElement(curr);
+                toAdd.push_back(curr);
 
                 last = curr;
             } 
+
+            T->addElements(toAdd);
         }
 
         void queryString(const std::string&s, std::vector <int> &ids, bool fixRes = false)
