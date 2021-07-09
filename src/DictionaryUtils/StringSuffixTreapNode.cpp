@@ -5,6 +5,7 @@
 #include <vector>
 #include <numeric>
 
+#include "..\TreapUtils\Treap.cpp"
 #include "..\TreapUtils\TreapNode.cpp"
 #include "..\StringUtils\StringSuffix.cpp"
 
@@ -18,7 +19,7 @@ namespace gnl
 
     public:
         StringSuffixTreapNode<alphSz> *leftmostCounterPart;
-        std::shared_ptr <StringSuffix<alphSz>> suff;
+        std::shared_ptr<StringSuffix<alphSz>> suff;
 
         StringSuffixTreapNode() : TreapNode() 
         {
@@ -32,28 +33,28 @@ namespace gnl
             this->counterpart = counterpart;
         }
         
-        void externalRecalc() override
-        {
-            leftmostCounterPart = counterpart;
-            
-            if(L!=nullptr && leftmostCounterPart!=nullptr)
+        void externalRecalc(TreapFunction f) override
+        {    
+            if(f!=TreapFunction::Split && f!=TreapFunction::SplitSz)
             {
-                StringSuffixTreapNode *other = ((StringSuffixTreapNode*)L)->leftmostCounterPart;
-                if(other==nullptr || *other < *leftmostCounterPart) 
+                leftmostCounterPart = counterpart;    
+                if(L!=nullptr && leftmostCounterPart!=nullptr)
                 {
-                    leftmostCounterPart = other;
+                    StringSuffixTreapNode *other = ((StringSuffixTreapNode*)L)->leftmostCounterPart;
+                    if(other==nullptr || *other < *leftmostCounterPart) 
+                    {
+                        leftmostCounterPart = other;
+                    }
                 }
-            }
-            
-            if(R!=nullptr && leftmostCounterPart!=nullptr)
-            {
-                StringSuffixTreapNode *other = ((StringSuffixTreapNode*)R)->leftmostCounterPart;
-
-                if(other==nullptr || *other < *leftmostCounterPart) 
+                if(R!=nullptr && leftmostCounterPart!=nullptr)
                 {
-                    leftmostCounterPart = other;
+                    StringSuffixTreapNode *other = ((StringSuffixTreapNode*)R)->leftmostCounterPart;
+                    if(other==nullptr || *other < *leftmostCounterPart) 
+                    {
+                        leftmostCounterPart = other;
+                    }
                 }
-            }
+            }  
         }
 
         template <size_t currAlphSz> 
@@ -64,7 +65,7 @@ namespace gnl
 
         friend std::ostream& operator <<(std::ostream& o, const StringSuffixTreapNode &s)
         {
-            o << *s.suff;
+            o << "{" << "suff: " << *s.suff << ", id: " << s.suff->getStringId() << "}";
             return o;
         }
 
@@ -80,7 +81,7 @@ namespace gnl
         {
             recalc();
             pushLazy();
-            //externalRecalc();
+            externalRecalc(TreapFunction::Other);
 
             bool currOk = false;
             int matchingLen = 0;

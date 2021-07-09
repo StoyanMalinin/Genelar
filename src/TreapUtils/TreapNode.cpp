@@ -4,8 +4,12 @@
 #include <memory>
 #include <random>
 
+#include "Treap.cpp"
+
 namespace gnl
 {
+    enum class TreapFunction;
+
     struct TreapNode
     {
         static std::mt19937 rnd;
@@ -51,7 +55,7 @@ namespace gnl
             }
         }
 
-        virtual void externalRecalc()
+        virtual void externalRecalc(TreapFunction f)
         {
             
         }

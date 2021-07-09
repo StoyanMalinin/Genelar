@@ -1,6 +1,7 @@
 #ifndef TREAPDICTIONARY_CPP
 #define TREAPDICTIONARY_CPP
 
+#include <map>
 #include <vector>
 #include <memory>
 #include <iostream>
@@ -17,6 +18,7 @@ namespace gnl
     {
     private:
         uint8_t *alphMap;
+        std::map <int, std::vector <StringSuffixTreapNode<alphSz>*>> id2Nodes;
 
     public:
         Treap<StringSuffixTreapNode<alphSz>> *T;
@@ -51,14 +53,20 @@ namespace gnl
                 last = curr;
             } 
 
+            id2Nodes[id] = toAdd;
             T->addElements(toAdd);
+        }
+
+        void removeString(int id)
+        {
+            auto v = id2Nodes[id];
+            T->removeElements(v);
         }
 
         void queryString(const std::string&s, std::vector <int> &ids, bool fixRes = false)
         {
             if(fixRes==true) ids.clear();
-            
-            T->root->findMatches(s, ids);
+            T->findMatches(s, ids);
             
             if(fixRes==true)
             {

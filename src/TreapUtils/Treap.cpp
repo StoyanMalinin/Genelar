@@ -8,6 +8,14 @@
 
 namespace gnl
 {
+    enum class TreapFunction
+    {
+        Merge,
+        Split,
+        SplitSz,
+        Other
+    };
+
     template <class NodeType>
     class Treap
     {
@@ -20,13 +28,11 @@ namespace gnl
             {
                 small->recalc();
                 small->pushLazy();
-                //small->externalRecalc();
             }
             if(big!=nullptr)
             {
                 big->recalc();
                 big->pushLazy();
-                //big->externalRecalc();
             }
 
             if(small==nullptr) return big;
@@ -38,7 +44,7 @@ namespace gnl
                 
                 small->recalc();
                 small->pushLazy();
-                small->externalRecalc();
+                small->externalRecalc(TreapFunction::Merge);
 
                 return small;
             }
@@ -48,7 +54,7 @@ namespace gnl
                 
                 big->recalc();
                 big->pushLazy();
-                big->externalRecalc();
+                big->externalRecalc(TreapFunction::Merge);
 
                 return big;
             }
@@ -60,7 +66,6 @@ namespace gnl
             
             T->recalc();
             T->pushLazy();
-            //T->externalRecalc();
 
             if(*T < x)
             {
@@ -71,7 +76,7 @@ namespace gnl
                 T->parent = nullptr;
                 T->recalc();
                 T->pushLazy();
-                T->externalRecalc();
+                T->externalRecalc(TreapFunction::Split);
 
                 if(splitRes.second!=nullptr) 
                 {
@@ -79,7 +84,7 @@ namespace gnl
                  
                     splitRes.second->recalc();
                     splitRes.second->pushLazy();
-                    //splitRes.second->externalRecalc();
+                    //splitRes.second->externalRecalc(TreapFunction::Split);
                 }
 
                 return {T, splitRes.second};
@@ -93,7 +98,7 @@ namespace gnl
                 T->parent = nullptr;
                 T->recalc();
                 T->pushLazy();
-                T->externalRecalc();
+                T->externalRecalc(TreapFunction::Split);
 
                 if(splitRes.first!=nullptr) 
                 {
@@ -101,7 +106,59 @@ namespace gnl
 
                     splitRes.first->recalc();
                     splitRes.first->pushLazy();
-                    //splitRes.first->externalRecalc();
+                    //splitRes.first->externalRecalc(TreapFunction::Split);
+                }
+
+                return {splitRes.first, T};
+            }
+        }
+
+        static std::pair <NodeType*, NodeType*> SplitSz(NodeType* T, int k)
+        {
+            if(T==nullptr) return {nullptr, nullptr};
+            if(k==0) return {nullptr, T};
+
+            T->recalc();
+            T->pushLazy();
+
+            int lSz = ((T->L==nullptr)?0:T->L->len); 
+            if(k >= lSz+1)
+            {
+                auto splitRes = SplitSz((NodeType*)T->R, k-lSz-1);
+                
+                T->R = splitRes.first;
+
+                T->recalc();
+                T->pushLazy();
+                T->externalRecalc(TreapFunction::SplitSz);
+
+                if(splitRes.second != nullptr)
+                {
+                    splitRes.second->parent = nullptr;
+                 
+                    splitRes.second->recalc();
+                    splitRes.second->pushLazy();
+                }
+
+                return {T, splitRes.second};
+            }
+            else
+            {
+                auto splitRes = SplitSz((NodeType*)T->L, k);
+
+                T->L = splitRes.second;
+                
+                T->parent = nullptr;
+                T->recalc();
+                T->pushLazy();
+                T->externalRecalc(TreapFunction::Split);
+
+                if(splitRes.first!=nullptr) 
+                {
+                    splitRes.first->parent = nullptr;
+
+                    splitRes.first->recalc();
+                    splitRes.first->pushLazy();
                 }
 
                 return {splitRes.first, T};
@@ -112,11 +169,10 @@ namespace gnl
         {
             x->recalc();
             x->pushLazy();
-            x->externalRecalc();
+            x->externalRecalc(TreapFunction::Other);
 
             if(x->L!=nullptr) printTreapInternal(x->L);
-            std::cout << "{" << *((NodeType*)x) << ", " << x->getInd() << " || " << (*((NodeType*)(&(*x)))).suff->getStringId() << " && " 
-                      << ((((NodeType*)x)->leftmostCounterPart)==nullptr?-1:(((NodeType*)x)->leftmostCounterPart)->getInd()) << "}" << " ";
+            std::cout << (*((NodeType*)x)) << " ";
             if(x->R!=nullptr) printTreapInternal(x->R);
         }
 
@@ -127,17 +183,15 @@ namespace gnl
             std::cout << '\n';
         }
 
-        void dfs(NodeType *x, int depth = 0)
+        void findMatches(const std::string&s, std::vector <int> &ids)
         {
-            int ind = x->getInd();
+            if(root==nullptr)
+            {
+                ids = {};
+                return;
+            }
 
-            for(int i = 0;i<depth;i++) std::cout << " ";
-            std::cout << "at " << *(x->suff) << " -> " << "ind: " << ind << " | " << "len: " << x->len
-                      << " " << "priority: " << x->priority
-                      << " || " << "counterPartInd: " << ((x->leftmostCounterPart==nullptr)?-1:(x->leftmostCounterPart->getInd()))  <<  '\n';
-
-            if(x->L!=nullptr) dfs((NodeType*)(x->L), depth+1);
-            if(x->R!=nullptr) dfs((NodeType*)(x->R), depth+1);
+            root->findMatches(s, ids);
         }
         
         void addElement(NodeType *x)
@@ -161,6 +215,23 @@ namespace gnl
                 merged = Merge(merged, x);
                 
                 last = help.second;
+            }
+            merged = Merge(merged, last);
+
+            root = merged;
+        }
+
+        void removeElements(const std::vector <NodeType*> &elements)
+        {
+            NodeType *last = root;
+
+            NodeType *merged = nullptr;
+            for(NodeType *x: elements)
+            {
+                auto help = Split(last, *x);
+
+                merged = Merge(merged, help.first);
+                last = SplitSz(help.second, 1).second;
             }
             merged = Merge(merged, last);
 

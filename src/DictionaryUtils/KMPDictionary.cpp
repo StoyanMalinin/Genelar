@@ -8,12 +8,17 @@ namespace gnl
     class KMPDictionary
     {
     private:
+        std::map <int, const std::string*> mp;
     
     public:
-        std::vector <std::pair<int, std::string>> all;
         void addString(int id, const std::string &s)
         {
-            all.push_back({id, s});
+            mp[id] = new std::string(s);
+        }
+
+        void removeString(int id)
+        {
+            mp.erase(id);
         }
 
         void queryString(const std::string &s, std::vector <int> &ids, bool fixRes = false)
@@ -40,16 +45,17 @@ namespace gnl
                 }
             }
 
-            for(std::pair <int, std::string> &item: all)
+            for(std::pair <int, const std::string*> item: mp)
             {
                 len = 0;
                 bool found = false;
 
-                for(int i = 0;i<item.second.size();i++)
+                const std::string &text = *item.second;
+                for(int i = 0;i<text.size();i++)
                 {
-                    while(item.second[i]!=s[len] && len!=0) len = f[len-1];
+                    while(text[i]!=s[len] && len!=0) len = f[len-1];
 
-                    if(s[len]==item.second[i])
+                    if(s[len]==text[i])
                     {
                         len++;
 

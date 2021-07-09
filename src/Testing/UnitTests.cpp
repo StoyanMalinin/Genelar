@@ -81,7 +81,7 @@ namespace gnl
             auto startTime = clock.now();
 
             std::vector <int> ids;
-            KMPDictionary *td = new KMPDictionary();
+            TreapDictionary<alphSz> *td = new TreapDictionary<alphSz>(alphMap);
 
             td->addString(1, "alabala");
             td->addString(2, "abababababababababababababababababababababababababababababababab");
@@ -137,7 +137,7 @@ namespace gnl
             int id = 1;
             int idSum = 0, idCnt = 0;
 
-            for(int iter = 0;iter<5*1000;iter++)
+            for(int iter = 0;iter<10*1000;iter++)
             {
                 if(iter%1000==0)
                     std::cout << iter << " OK" << '\n';
@@ -154,7 +154,7 @@ namespace gnl
                 }
                 else
                 {
-                    for(int i = 0;i<2;i++) s += char('a' + (rnd()%26));
+                    for(int i = 0;i<3;i++) s += char('a' + (rnd()%26));
                     
                     d1->queryString(s, ids1, true);
                     d2->queryString(s, ids2, true);
@@ -189,6 +189,66 @@ namespace gnl
             std::cout << "Test 4 is ok" << " " << (std::chrono::duration<float>(endTime-startTime)).count() << "s" << '\n';
         }
 
+        static void test6()
+        {
+            std::mt19937 rnd(22);
+
+            std::chrono::high_resolution_clock clock;
+            auto startTime = clock.now();
+
+            std::vector <int> ids1, ids2;
+            
+            KMPDictionary *d1 = new KMPDictionary();
+            TreapDictionary<alphSz> *d2 = new TreapDictionary<alphSz>(alphMap);
+
+            int id = 1;
+            int idSum = 0, idCnt = 0;
+
+            std::set <int> available;
+            for(int iter = 0;iter<10*1000;iter++)
+            {
+                if(iter%1000==0)
+                    std::cout << iter << " OK" << '\n';
+
+                std::string s = "";
+                if(iter%100==0 && available.size()!=0)
+                {
+                    int ind = rnd()%(available.size());
+                    auto it = available.begin();
+                    for(;ind!=0;ind--,it++) {}
+
+                    d1->removeString(*it);
+                    d2->removeString(*it);
+                    available.erase(it);
+                }
+                else if(iter%5==0) 
+                {
+                    for(int i = 0;i<600;i++) s += char('a' + (rnd()%26));
+                    
+                    d1->addString(id, s);
+                    d2->addString(id, s);
+                    available.insert(id);
+
+                    id++;
+                }
+                else
+                {
+                    for(int i = 0;i<3;i++) s += char('a' + (rnd()%26));
+                    
+                    d1->queryString(s, ids1, true);
+                    d2->queryString(s, ids2, true);
+
+                    idCnt++;
+                    idSum += ids2.size();
+
+                    assert(ids1==ids2);
+                }
+            }
+
+            auto endTime = clock.now();
+            std::cout << "Test 6 is ok" << " " << (std::chrono::duration<float>(endTime-startTime)).count() << "s" << '\n';
+        }
+
         static void test5()
         {
             std::mt19937 rnd(22);
@@ -198,24 +258,25 @@ namespace gnl
 
             std::vector <int> ids;
             TreapDictionary<alphSz> *d = new TreapDictionary<alphSz>(alphMap);
+            //KMPDictionary *d = new KMPDictionary();
 
             int id = 1;
-            for(int iter = 0;iter<5*1000;iter++)
+            for(int iter = 0;iter<10*1000;iter++)
             {
                 if(iter%1000==0)
                     std::cout << iter << " OK" << '\n';
 
                 std::string s = "";
-                if(iter%10==0) 
+                if(iter%50==0) 
                 {
-                    for(int i = 0;i<600;i++) s += char('a' + (rnd()%26));
+                    for(int i = 0;i<2000;i++) s += char('a' + (rnd()%26));
                     d->addString(id, s);
 
                     id++;
                 }
                 else
                 {
-                    for(int i = 0;i<2;i++) s += char('a' + (rnd()%26));
+                    for(int i = 0;i<3;i++) s += char('a' + (rnd()%26));
                     d->queryString(s, ids, true);
                 }
             }
@@ -234,6 +295,7 @@ namespace gnl
             allTests.push_back(test2);
             allTests.push_back(test3);
             allTests.push_back(test4);
+            allTests.push_back(test6);
             allTests.push_back(test5);
         }
 

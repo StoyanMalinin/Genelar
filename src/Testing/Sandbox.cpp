@@ -31,13 +31,20 @@ namespace gnl
             TreapDictionary<alphSz> *td = new TreapDictionary<alphSz>(alphMap);
 
             td->addString(1, "alabala");
-            //td->addString(2, "abababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab");
-            td->addString(3, "abcabcabz");
-            td->T->printTreap();
+            td->addString(3, "abcabcab");
             
             std::vector <int> ids;
-            td->queryString("ab", ids);
 
+            td->T->printTreap();
+            td->queryString("ab", ids, true);
+            std::cout << "ids: ";
+            for(int id: ids) std::cout << " " << id;
+            std::cout << "\n";
+
+            td->removeString(3);
+            
+            td->T->printTreap();
+            td->queryString("ab", ids, true);
             std::cout << "ids: ";
             for(int id: ids) std::cout << " " << id;
             std::cout << "\n";

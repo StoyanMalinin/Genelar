@@ -16,7 +16,7 @@ namespace gnl
     class StringSuffix 
     {
     private:
-        std::shared_ptr <StringWithSuffixes<alphSz>> s;
+        std::shared_ptr<StringWithSuffixes<alphSz>> s;
 
     public:
         int ind, len;
@@ -31,7 +31,7 @@ namespace gnl
         } 
         
     public:
-        int getStringId()
+        int getStringId() const
         {
             return s->id;
         }
