@@ -1,3 +1,6 @@
+#ifndef __HASHINGDATA_H
+#define __HASHINGDATA_H
+
 #include <array>
 
 namespace gnl
@@ -28,3 +31,5 @@ namespace gnl
         }
     };
 }
+
+#endif

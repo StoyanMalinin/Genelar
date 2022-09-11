@@ -3,7 +3,7 @@
 
 #include <cstring>
 
-#include "HashingData.cpp"
+#include "HashingData.h"
 
 namespace gnl
 {
@@ -15,7 +15,7 @@ namespace gnl
         uint8_t *alphMap;
 
         Hash(){}
-        Hash(uint8_t *alphMap) 
+        Hash(uint8_t *alphMap)
         {
             this->alphMap = alphMap;
 
@@ -40,7 +40,7 @@ namespace gnl
 
             for(int i = 0;i<HashingData::hCnt;i++)
             {
-                res.h[i] = (big.h[i] - small.h[i]*1LL*HashingData::pVal[big.len-small.len][i] 
+                res.h[i] = (big.h[i] - small.h[i]*1LL*HashingData::pVal[big.len-small.len][i]
                             + HashingData::mod2[i])%HashingData::mod[i];
             }
             res.len = big.len - small.len;
